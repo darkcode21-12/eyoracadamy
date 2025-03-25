@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Photo Slideshow</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .main-slide {
+            width: 100%;
+            height: 70vh;
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            color: white;
+            padding: 30px;
+            padding-top: 80px;
+        }
+
+        .slide-title {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .slide-desc {
+            font-size: 1.1rem;
+            max-width: 80%;
+            line-height: 1.6;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .controls {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .control-btn {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin: 0 20px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+        }
+
+        .thumbnails {
+            display: flex;
+            overflow-x: auto;
+            padding: 15px 0;
+            background-color: #222;
+            scrollbar-width: thin;
+            scrollbar-color: #555 #222;
+        }
+
+        .thumbnails::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .thumbnails::-webkit-scrollbar-track {
+            background: #222;
+        }
+
+        .thumbnails::-webkit-scrollbar-thumb {
+            background-color: #555;
+            border-radius: 10px;
+        }
+
+        .thumbnail {
+            min-width: 120px;
+            height: 80px;
+            margin: 0 5px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
+            border-radius: 5px;
+            opacity: 0.7;
+        }
+
+        .thumbnail:hover, .thumbnail.active {
+            opacity: 1;
+            border-color: #fff;
+            transform: scale(1.05);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.3);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #fff;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 10;
+        }
+
+        .play-pause {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-slide {
+                height: 50vh;
+                min-height: 300px;
+            }
+
+            .slide-title {
+                font-size: 1.5rem;
+            }
+
+            .slide-desc {
+                font-size: 0.9rem;
+                max-width: 100%;
+            }
+
+            .control-btn {
+                width: 40px;
+                height: 40px;
+                margin: 0 10px;
+            }
+
+            .thumbnail {
+                min-width: 80px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <div class="main-slide">
+            <div class="slide-counter">1 / 12</div>
+            <button class="play-pause">❚❚</button>
+            
+            
+            
+            <div class="slide-content">
+                <h2 class="slide-title">Beautiful Landscape</h2>
+                <p class="slide-desc">Explore the breathtaking views of nature's wonders from around the world.</p>
+            </div>
+            
+            <div class="controls">
+                <button class="control-btn prev-btn">❮</button>
+                <button class="control-btn next-btn">❯</button>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+        
+        <div class="thumbnails">
+            <!-- Thumbnails will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Slideshow data - replace with your own images and captions
+            const slides = [
+                {
+                    image: 'assets\photo_gallery\photo_2025-03-24_18-59-15.jpg',
+                    title: 'Mountain Sunrise',
+                    description: 'The golden rays of sunrise over snow-capped peaks create a magical atmosphere.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,2',
+                    title: 'Ocean Waves',
+                    description: 'Powerful waves crashing against coastal rocks demonstrate nature\'s raw energy.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,3',
+                    title: 'Forest Pathway',
+                    description: 'A serene walk through ancient trees with sunlight filtering through the canopy.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,4',
+                    title: 'Desert Dunes',
+                    description: 'The ever-shifting sands create mesmerizing patterns under the hot sun.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,5',
+                    title: 'Waterfall Majesty',
+                    description: 'Crystal clear water cascading down rugged cliffs into a misty pool below.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,6',
+                    title: 'Autumn Colors',
+                    description: 'Vibrant fall foliage paints the landscape in warm hues of red and gold.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,7',
+                    title: 'Winter Wonderland',
+                    description: 'A peaceful snow-covered forest under a crisp blue winter sky.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,8',
+                    title: 'Spring Blossoms',
+                    description: 'Delicate flowers blooming as nature awakens from winter slumber.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,9',
+                    title: 'Summer Fields',
+                    description: 'Endless golden fields swaying gently in the warm summer breeze.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,10',
+                    title: 'Coastal Cliffs',
+                    description: 'Dramatic sea cliffs standing strong against the relentless ocean.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,11',
+                    title: 'Misty Mountains',
+                    description: 'Low-hanging clouds creating an ethereal atmosphere in the highlands.'
+                },
+                {
+                    image: 'https://source.unsplash.com/random/1200x800?nature,12',
+                    title: 'Northern Lights',
+                    description: 'The spectacular dance of auroras across the Arctic night sky.'
+                }
+            ];
+
+            // DOM elements
+            const mainSlide = document.querySelector('.main-slide');
+            const thumbnailsContainer = document.querySelector('.thumbnails');
+            const slideCounter = document.querySelector('.slide-counter');
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            const playPauseBtn = document.querySelector('.play-pause');
+            const progressBar = document.querySelector('.progress-bar');
+            const slideTitle = document.querySelector('.slide-title');
+            const slideDesc = document.querySelector('.slide-desc');
+
+            // Variables
+            let currentSlide = 0;
+            let slideInterval;
+            let isPlaying = true;
+            const slideDuration = 5000; // 5 seconds per slide
+
+            // Initialize slideshow
+            function initSlideshow() {
+                // Create slides
+                slides.forEach((slide, index) => {
+                    // Create main slide div
+                    const slideDiv = document.createElement('div');
+                    slideDiv.className = 'slide';
+                    slideDiv.style.backgroundImage = `url(${slide.image})`;
+                    if (index === 0) slideDiv.classList.add('active');
+                    mainSlide.insertBefore(slideDiv, mainSlide.firstChild);
+                    
+                    // Create thumbnail
+                    const thumbnail = document.createElement('div');
+                    thumbnail.className = 'thumbnail';
+                    if (index === 0) thumbnail.classList.add('active');
+                    thumbnail.style.backgroundImage = `url(${slide.image})`;
+                    thumbnail.addEventListener('click', () => goToSlide(index));
+                    thumbnailsContainer.appendChild(thumbnail);
+                });
+
+                // Update counter
+                updateCounter();
+                
+                // Start autoplay
+                startSlideShow();
+            }
+
+            // Start slideshow autoplay
+            function startSlideShow() {
+                slideInterval = setInterval(nextSlide, slideDuration);
+                isPlaying = true;
+                playPauseBtn.textContent = '❚❚';
+            }
+
+            // Pause slideshow
+            function pauseSlideShow() {
+                clearInterval(slideInterval);
+                isPlaying = false;
+                playPauseBtn.textContent = '►';
+            }
+
+            // Go to next slide
+            function nextSlide() {
+                goToSlide((currentSlide + 1) % slides.length);
+                resetProgressBar();
+            }
+
+            // Go to previous slide
+            function prevSlide() {
+                goToSlide((currentSlide - 1 + slides.length) % slides.length);
+                resetProgressBar();
+            }
+
+            // Go to specific slide
+            function goToSlide(index) {
+                // Update current slide
+                const slides = document.querySelectorAll('.slide');
+                const thumbnails = document.querySelectorAll('.thumbnail');
+                
+                slides[currentSlide].classList.remove('active');
+                thumbnails[currentSlide].classList.remove('active');
+                
+                currentSlide = index;
+                
+                slides[currentSlide].classList.add('active');
+                thumbnails[currentSlide].classList.add('active');
+                
+                // Update content
+                slideTitle.textContent = slidesData[currentSlide].title;
+                slideDesc.textContent = slidesData[currentSlide].description;
+                
+                // Update counter
+                updateCounter();
+                
+                // Scroll thumbnail into view
+                thumbnails[currentSlide].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+
+            // Update slide counter
+            function updateCounter() {
+                slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+            }
+
+            // Reset progress bar animation
+            function resetProgressBar() {
+                progressBar.style.width = '0%';
+                void progressBar.offsetWidth; // Trigger reflow
+                progressBar.style.width = '100%';
+                progressBar.style.transition = `width ${slideDuration/1000}s linear`;
+            }
+
+            // Event listeners
+            prevBtn.addEventListener('click', () => {
+                prevSlide();
+                if (isPlaying) {
+                    pauseSlideShow();
+                    startSlideShow();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                nextSlide();
+                if (isPlaying) {
+                    pauseSlideShow();
+                    startSlideShow();
+                }
+            });
+
+            playPauseBtn.addEventListener('click', () => {
+                if (isPlaying) {
+                    pauseSlideShow();
+                } else {
+                    startSlideShow();
+                }
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                    if (isPlaying) {
+                        pauseSlideShow();
+                        startSlideShow();
+                    }
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                    if (isPlaying) {
+                        pauseSlideShow();
+                        startSlideShow();
+                    }
+                } else if (e.key === ' ') {
+                    e.preventDefault();
+                    if (isPlaying) {
+                        pauseSlideShow();
+                    } else {
+                        startSlideShow();
+                    }
+                }
+            });
+
+            // Initialize progress bar animation
+            progressBar.style.width = '100%';
+            progressBar.style.transition = `width ${slideDuration/1000}s linear`;
+
+            // Start the slideshow
+            initSlideshow();
+        });
+    </script>
+</body>
+</html>
